@@ -18,3 +18,12 @@ if(form) {
 } else {
     throw Error ('Verifique se o form existe')
 }
+
+const botaoImporta = document.querySelector('#botao-importa')
+if(botaoImporta) {
+    botaoImporta.addEventListener('click', () => {
+        controller.importarDados();
+    })
+}else {
+    throw Error('Botao importa não foi encontrado');
+}

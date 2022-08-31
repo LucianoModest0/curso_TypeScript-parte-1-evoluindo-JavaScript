@@ -4,6 +4,8 @@ import { logarTempoExec } from "../decorators/logar-tempo-exec.js";
 import { DiasDaSemana } from "../enums/dias-da-semana.js";
 import { Negociacao } from "../models/negociacao.js";
 import { Negociacoes } from "../models/negociacoes.js";
+import { NegociacoesService } from "../services/negociacoes-services.js";
+import { imprime } from "../utils/imprime.js";
 import { MensagemView } from "../views/mensagem-view.js";
 import { NegociacoesView } from "../views/negociacoes-view.js";
 
@@ -17,6 +19,7 @@ export class NegociacaoController {
     private negociacoes = new Negociacoes();
     private negociacoesView = new NegociacoesView('#negociacoesView');
     private mensagemView = new MensagemView('#mensagemView');
+    private negociacoesService = new NegociacoesService();
 
     constructor(){
         
@@ -40,11 +43,33 @@ export class NegociacaoController {
         } 
         
         this.negociacoes.add(negociacao);
+        imprime(negociacao, this.negociacoes)
             
         this.limparFormulario();
     
         this.atualizaView();
         
+    }
+
+    public importarDados():void {
+       this.negociacoesService
+       .obterNegociacoesDoDia()
+       .then(negociacoesDeHoje => {
+            return negociacoesDeHoje.filter(negociacoesDeHoje => {
+                return !this.negociacoes
+                .lista()
+                .some(negociacao => negociacao
+                    .ehIgual(negociacoesDeHoje)
+                    );
+            })
+       })
+       .then(negociacoesDeHoje => {
+            for(let negociacao of negociacoesDeHoje) {
+                this.negociacoes.add(negociacao)
+            }
+            this.negociacoesView.update(this.negociacoes);
+       })
+
     }
 
     private ehDiaUtil(data:Date) {
